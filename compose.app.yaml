@@ -7,8 +7,6 @@ services:
       - ../infra/env/.env
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      TZ: Asia/Tokyo
-      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Tokyo"
     volumes:
       - ../infra/lineworks:/app/keys/lineworks:ro
     networks:

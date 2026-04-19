@@ -6,6 +6,8 @@ services:
       - "5432:5432"
     env_file:
       - ../infra/env/db/.env
+    environment:
+      - TZ=Asia/Tokyo
     networks:
       - local-app-network
     volumes:

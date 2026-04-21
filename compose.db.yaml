@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: shared-postgres # 名前を固定する
+    ports:
+      - "5432:5432"
+    env_file:
+      - ../infra/env/db/.env
+    environment:
+      - TZ=Asia/Tokyo
+    networks:
+      - local-app-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+# 💡 システム全体で共有するネットワークを作成
+networks:
+  local-app-network:
+    name: local-app-network
+    driver: bridge
+
+volumes:
+  postgres-data:

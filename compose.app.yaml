@@ -1,8 +1,8 @@
 services:
   attendance-app:
-    image: attendance-management:0.0.1-SNAPSHOT
+    image: attendance-management:0.0.1
     ports:
-      - "8080:8080"
+      - "8180:8081"
     env_file:
       - ../infra/env/.env
     environment:
@@ -13,6 +13,12 @@ services:
       - ../infra/lineworks:/app/keys/lineworks:ro
     networks:
       - local-app-network # 下で定義した外部ネットワークに参加
+    # 💡 30秒に1回、自分の健康診断（Actuator）にアクセスして生死を確認する
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 # 💡 外部ネットワーク（すでにdockerリポジトリ側で作られているもの）を使用する宣言
 networks:

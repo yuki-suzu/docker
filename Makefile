@@ -13,3 +13,9 @@ app-up:
 
 app-down:
 	docker compose -f compose.app.yaml down
+
+attend-image:
+	docker save -o attendance-management.tar attendance-management:0.0.1
+
+attend-load:
+	docker load -i attendance-management.tar

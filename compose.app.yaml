@@ -3,6 +3,9 @@ name: attendance-app-project
 services:
   attendance-app:
     image: attendance-management:0.0.1
+    build:
+      context: ../attendance-management
+      dockerfile: docker/Dockerfile
     ports:
       - "8180:8081"
     env_file:

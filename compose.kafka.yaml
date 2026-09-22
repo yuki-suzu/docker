@@ -1,0 +1,38 @@
+# compose.kafka.yaml
+name: kafka-project
+
+services:
+  kafka:
+    image: apache/kafka:latest
+    container_name: shared-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      # KRaftモード（ZooKeeper不要）の設定
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@shared-kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://shared-kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - local-app-network
+
+  # 💡 ブラウザでトピックやメッセージを覗ける超便利ツール（http://localhost:8080）
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: shared-kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: shared-kafka:9092
+    networks:
+      - local-app-network
+
+networks:
+  local-app-network:
+    external: true

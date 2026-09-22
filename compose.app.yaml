@@ -1,4 +1,4 @@
-name: attendance-app-project
+name: cr-app-project
 
 services:
   attendance-app:
@@ -9,10 +9,32 @@ services:
     ports:
       - "8180:8081"
     env_file:
-      - ../infra/env/.env
+      - ../infra/env/common.env
+      - ../infra/env/attend.env
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      TZ: Asia/Tokyo
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Tokyo"
+    networks:
+      - local-app-network # 下で定義した外部ネットワークに参加
+    # 💡 30秒に1回、自分の健康診断（Actuator）にアクセスして生死を確認する
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  notification-app:
+    image: notification-service:0.0.1
+    build:
+      context: ../notification-service
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8181:8081"
+    env_file:
+      - ../infra/env/common.env
+      - ../infra/env/notice.env
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
       JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Tokyo"
     volumes:
       - ../infra/lineworks:/app/keys/lineworks:ro

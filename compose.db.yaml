@@ -1,9 +1,10 @@
 name: db-project
 
+# compose.db.yaml
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: shared-postgres # 名前を固定する
+    container_name: shared-postgres
     ports:
       - "5432:5432"
     env_file:
@@ -14,8 +15,9 @@ services:
       - local-app-network
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      # 💡 初回初期化スクリプトをマウント！
+      - ../infra/env/db/init:/docker-entrypoint-initdb.d:ro
 
-# 💡 システム全体で共有するネットワークを作成
 networks:
   local-app-network:
     name: local-app-network

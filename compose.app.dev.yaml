@@ -1,0 +1,33 @@
+name: cr-app-project
+
+services:
+  attendance-app:
+    extends:
+      file: compose.app.yaml
+      service: attendance-app
+    env_file:
+      - ../infra/env/dev.env
+  notification-app:
+    extends:
+      file: compose.app.yaml
+      service: notification-app
+    env_file:
+      - ../infra/env/dev.env
+  # ==========================================
+  # API Mock サーバー (WireMock)
+  # ==========================================
+  wiremock:
+    image: wiremock/wiremock:3.9.1
+    container_name: shared-wiremock
+    command: ["--port", "8089"]
+    ports:
+      - "8089:8089"
+    networks:
+      - local-app-network
+    volumes:
+      - ../infra/wiremock/mappings:/home/wiremock/mappings
+    restart: unless-stopped
+
+networks:
+  local-app-network:
+    external: true

@@ -22,24 +22,39 @@ exporters:
     endpoint: otlp.nr-data.net:4317
     headers:
       api-key: "${NEW_RELIC_LICENSE_KEY_MAIN}"
-  # サブアカウント
-  otlp/sub1:
-    endpoint: otlp.nr-data.net:4317 # US向け
-#    endpoint: otlp.eu01.nr-data.net:4317 # EU向け
-    headers:
-      api-key: "${NEW_RELIC_LICENSE_KEY_SUB1}"
+#  # サブアカウント
+#  otlp/sub1:
+#    endpoint: otlp.nr-data.net:4317 # US向け
+##    endpoint: otlp.eu01.nr-data.net:4317 # EU向け
+#    headers:
+#      api-key: "${NEW_RELIC_LICENSE_KEY_SUB1}"
 
 service:
   pipelines:
     traces:
-      receivers: [otlp]
-      processors: [memory_limiter, batch]
-      exporters: [otlp/main, otlp/sub1]
+      receivers:
+        - otlp
+      processors:
+        - memory_limiter
+        - batch
+      exporters:
+        - otlp/main
+#        - otlp/sub1
     metrics:
-      receivers: [otlp]
-      processors: [memory_limiter, batch]
-      exporters: [otlp/main, otlp/sub1]
+      receivers:
+        - otlp
+      processors:
+        - memory_limiter
+        - batch
+      exporters:
+        - otlp/main
+#        - otlp/sub1
     logs:
-      receivers: [otlp]
-      processors: [memory_limiter, batch]
-      exporters: [otlp/main, otlp/sub1]
+      receivers:
+        - otlp
+      processors:
+        - memory_limiter
+        - batch
+      exporters:
+        - otlp/main
+#        - otlp/sub1

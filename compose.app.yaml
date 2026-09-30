@@ -18,6 +18,8 @@ services:
       NEW_RELIC_APP_NAME: "attendance-management"
       NEW_RELIC_DISTRIBUTED_TRACING_ENABLED: "true"
       NEW_RELIC_LOGS_ENABLED: "true"
+      NEW_RELIC_KAFKA_METRICS_ENABLED: "true"
+      NEW_RELIC_KAFKA_METRICS_AS_EVENTS_ENABLED: "true"
     networks:
       - local-app-network # 下で定義した外部ネットワークに参加
     # 💡 30秒に1回、自分の健康診断（Actuator）にアクセスして生死を確認する
@@ -43,6 +45,8 @@ services:
       NEW_RELIC_APP_NAME: "notification-service"
       NEW_RELIC_DISTRIBUTED_TRACING_ENABLED: "true"
       NEW_RELIC_LOGS_ENABLED: "true"
+      NEW_RELIC_KAFKA_METRICS_ENABLED: "true"
+      NEW_RELIC_KAFKA_METRICS_AS_EVENTS_ENABLED: "true"
     volumes:
       - ../infra/lineworks:/app/keys/lineworks:ro
     networks:

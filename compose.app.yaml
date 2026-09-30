@@ -9,9 +9,6 @@ services:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     env_file:
       - ../infra/env/common.env
-    environment:
-      NEW_RELIC_LICENSE_KEY_MAIN: ${NEW_RELIC_LICENSE_KEY_MAIN}
-      NEW_RELIC_LICENSE_KEY_SUB1: ${NEW_RELIC_LICENSE_KEY_SUB1}
     ports:
       - "4317:4317" # OTLP gRPC
       - "4318:4318" # OTLP HTTP

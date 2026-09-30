@@ -1,0 +1,45 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 256
+  # メモリ使用量を安全に制限
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 75
+    spike_limit_percentage: 20
+
+exporters:
+  # マスター用
+  otlp/main:
+    endpoint: otlp.nr-data.net:4317
+    headers:
+      api-key: "${NEW_RELIC_LICENSE_KEY_MAIN}"
+  # サブアカウント
+  otlp/sub1:
+    endpoint: otlp.nr-data.net:4317 # US向け
+#    endpoint: otlp.eu01.nr-data.net:4317 # EU向け
+    headers:
+      api-key: "${NEW_RELIC_LICENSE_KEY_SUB1}"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/main, otlp/sub1]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/main, otlp/sub1]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/main, otlp/sub1]

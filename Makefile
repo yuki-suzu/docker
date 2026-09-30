@@ -9,7 +9,7 @@ db-down:
 
 # ボリューム（データ）も含めて完全に削除
 db-destroy:
-    docker compose -f compose.db.yaml down -v
+	docker compose -f compose.db.yaml down -v
 
 # アプリケーション（本番同等）の起動と停止を定義
 app-up:

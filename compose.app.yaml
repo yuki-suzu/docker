@@ -1,6 +1,23 @@
 name: cr-app-project
 
 services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    env_file:
+      - ../infra/env/common.env
+    environment:
+      NEW_RELIC_LICENSE_KEY_MAIN: ${NEW_RELIC_LICENSE_KEY_MAIN}
+      NEW_RELIC_LICENSE_KEY_SUB1: ${NEW_RELIC_LICENSE_KEY_SUB1}
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    networks:
+      - local-app-network
+
   attendance-app:
     image: attendance-management:0.0.1
     build:
@@ -13,16 +30,16 @@ services:
       - ../infra/env/attend.env
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      # 💡 New Relic Agent を JVM 起動オプションに追加！
-      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Tokyo -javaagent:/app/newrelic/newrelic.jar"
-      NEW_RELIC_APP_NAME: "attendance-management"
-      NEW_RELIC_DISTRIBUTED_TRACING_ENABLED: "true"
-      NEW_RELIC_LOGS_ENABLED: "true"
-      NEW_RELIC_KAFKA_METRICS_ENABLED: "true"
-      NEW_RELIC_KAFKA_METRICS_AS_EVENTS_ENABLED: "true"
+      # OpenTelemetry Java Agent を JVM 起動オプションに追加！
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Tokyo -javaagent:/app/otel/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: "attendance-management"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_LOGS_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
     networks:
       - local-app-network # 下で定義した外部ネットワークに参加
-    # 💡 30秒に1回、自分の健康診断（Actuator）にアクセスして生死を確認する
+    # 30秒に1回、自分の健康診断（Actuator）にアクセスして生死を確認する
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
       interval: 30s
@@ -41,12 +58,13 @@ services:
       - ../infra/env/notice.env
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Tokyo -javaagent:/app/newrelic/newrelic.jar"
-      NEW_RELIC_APP_NAME: "notification-service"
-      NEW_RELIC_DISTRIBUTED_TRACING_ENABLED: "true"
-      NEW_RELIC_LOGS_ENABLED: "true"
-      NEW_RELIC_KAFKA_METRICS_ENABLED: "true"
-      NEW_RELIC_KAFKA_METRICS_AS_EVENTS_ENABLED: "true"
+      # OpenTelemetry Java Agent を JVM 起動オプションに追加！
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Tokyo -javaagent:/app/otel/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: "notification-service"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_LOGS_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
     volumes:
       - ../infra/lineworks:/app/keys/lineworks:ro
     networks:
@@ -58,7 +76,7 @@ services:
       timeout: 10s
       retries: 3
 
-# 💡 外部ネットワーク（すでにdockerリポジトリ側で作られているもの）を使用する宣言
+# 外部ネットワーク（すでにdockerリポジトリ側で作られているもの）を使用する宣言
 networks:
   local-app-network:
     external: true

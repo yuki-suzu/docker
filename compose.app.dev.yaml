@@ -7,12 +7,18 @@ services:
       service: attendance-app
     env_file:
       - ../infra/env/dev.env
+    environment:
+      # これを true にするだけで、Agent は一切の監視・通信を行わず完全に無害化される！
+      OTEL_SDK_DISABLED: "true"
   notification-app:
     extends:
       file: compose.app.yaml
       service: notification-app
     env_file:
       - ../infra/env/dev.env
+    environment:
+      # これを true にするだけで、Agent は一切の監視・通信を行わず完全に無害化される！
+      OTEL_SDK_DISABLED: "true"
   # ==========================================
   # API Mock サーバー (WireMock)
   # ==========================================
